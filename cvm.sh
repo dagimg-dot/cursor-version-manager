@@ -35,7 +35,7 @@
 #
 CURSOR_DIR="$HOME/.local/share/cvm"
 DOWNLOADS_DIR="$CURSOR_DIR/app-images"
-CVM_VERSION="1.1.0"
+CVM_VERSION="1.1.1"
 
 
 
@@ -74,7 +74,7 @@ downloadLatest() {
 downloadVersion() {
   version=$1 # e.g. 2.1.0
   remoteFilename="cursor-$version"x86_64.AppImage
-  localFilename="cursor-$version.AppImage2"
+  localFilename="cursor-$version.AppImage"
   url="https://cursor-archive.ivstiv.dev/archive/linux-x64/$remoteFilename"
   echo "Downloading Cursor $version..."
   curl -L "$url" -o "$DOWNLOADS_DIR/$localFilename"
