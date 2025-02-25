@@ -35,7 +35,7 @@
 #
 CURSOR_DIR="$HOME/.local/share/cvm"
 DOWNLOADS_DIR="$CURSOR_DIR/app-images"
-CVM_VERSION="1.1.1"
+CVM_VERSION="1.1.2"
 
 
 
@@ -207,6 +207,27 @@ isShellSupported() {
   esac
 }
 
+cleanupAppImages() {
+  for build_file in "$DOWNLOADS_DIR"/cursor-*-build-*-x86_64.AppImage; do
+    # Skip if no files match the pattern
+    [ -e "$build_file" ] || continue
+    
+    # Extract version number from build file
+    version=$(basename "$build_file" | sed -E 's/cursor-([0-9.]+)-build.*/\1/')
+    regular_file="$DOWNLOADS_DIR/cursor-$version.AppImage"
+    
+    if [ -f "$regular_file" ]; then
+      # If regular version exists, remove build version
+      rm "$build_file"
+      # echo "Removed build version for $version (regular version exists)"
+    else
+      # If only build version exists, rename it to regular format
+      mv "$build_file" "$regular_file"
+      # echo "Renamed build version to regular format for $version"
+    fi
+  done
+}
+
 
 
 #
@@ -222,6 +243,7 @@ fi
 
 checkDependencies
 mkdir -p "$DOWNLOADS_DIR"
+cleanupAppImages
 
 case "$1" in
   --help|-h)
