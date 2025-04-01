@@ -30,10 +30,8 @@ Examples:
   bash cvm.sh --use 0.40.4
 
 Notice*:
-  The --download command uses an unofficial source for the AppImage.
-  It is voluntarily made available by ivstiv at cursor-archive.ivstiv.dev
-  If you want to use the official Cursor AppImage, you can use the
-  --update or--install command to automatically download and install the latest version.
+  The AppImage files are downloaded from the official Cursor releases.
+  The list of download sources can be found at https://github.com/oslook/cursor-ai-downloads
 
 Options:
   --list-local         Lists locally available versions
