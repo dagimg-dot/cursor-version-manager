@@ -9,10 +9,8 @@
 #H#   bash cvm.sh --use 0.40.4
 #H#
 #H# Notice*:
-#H#   The --download command uses an unofficial source for the AppImage.
-#H#   It is voluntarily made available by ivstiv at cursor-archive.ivstiv.dev
-#H#   If you want to use the official Cursor AppImage, you can use the
-#H#   --update or--install command to automatically download and install the latest version.
+#H#   The AppImage files are downloaded from the official Cursor releases.
+#H#   The list of download sources can be found at https://github.com/oslook/cursor-ai-downloads
 #H#
 #H# Options:
 #H#   --list-local         Lists locally available versions
@@ -35,8 +33,9 @@
 #
 CURSOR_DIR="$HOME/.local/share/cvm"
 DOWNLOADS_DIR="$CURSOR_DIR/app-images"
-CVM_VERSION="1.1.2"
-
+CVM_VERSION="1.2.0"
+_CACHE_FILE="/tmp/cursor_versions.json"
+VERSION_HISTORY_URL="https://raw.githubusercontent.com/oslook/cursor-ai-downloads/refs/heads/main/version-history.json"
 
 
 #
@@ -46,11 +45,37 @@ help() {
   sed -rn 's/^#H# ?//;T;p' "$0"
 }
 
+getVersionHistory() {
+  # Check if cache file exists and is less than 15 min old
+  if [ -f "$_CACHE_FILE" ] && [ -n "$(find "$_CACHE_FILE" -mmin -15 2>/dev/null)" ]; then
+    cat "$_CACHE_FILE"
+    return 0
+  fi
+
+  # Fetch JSON directly from remote and cache it
+  # echo "Fetching version history..." >&2
+  if wget -qO "$_CACHE_FILE.tmp" "$VERSION_HISTORY_URL"; then
+    mv "$_CACHE_FILE.tmp" "$_CACHE_FILE"
+    cat "$_CACHE_FILE"
+    return 0
+  else
+    rm -f "$_CACHE_FILE.tmp"
+    echo "Error: Failed to fetch version history" >&2
+    return 1
+  fi
+}
+
+getRemoteVersions() {
+  getVersionHistory | \
+    jq -r '.versions[] | select(.platforms["linux-x64"] != null) | .version' \
+      | sort -V
+}
+
 getLatestRemoteVersion() {
-  curl -s -r 0-0 \
-    https://downloader.cursor.sh/linux/appImage/x64 \
-    -o /dev/null -D - \
-    | grep -oP 'filename="cursor-\K[0-9.]+'
+  getVersionHistory | \
+    jq -r '.versions[] | select(.platforms["linux-x64"] != null) | .version' \
+      | sort -V \
+      | tail -n1
 }
 
 getLatestLocalVersion() {
@@ -61,23 +86,20 @@ getLatestLocalVersion() {
     | head -n 1
 }
 
-downloadLatest() {
-  version=$1 # e.g. 2.1.0
-  filename="cursor-$version.AppImage"
-  url="https://downloader.cursor.sh/linux/appImage/x64"
-  echo "Downloading Cursor $version..."
-  curl -L "$url" -o "$DOWNLOADS_DIR/$filename"
-  chmod +x "$DOWNLOADS_DIR/$filename"
-  echo "Cursor $version downloaded to $DOWNLOADS_DIR/$filename"
-}
-
 downloadVersion() {
   version=$1 # e.g. 2.1.0
-  remoteFilename="cursor-$version"x86_64.AppImage
+  if [ -z "$version" ]; then
+    echo "Error: Version number is required, use \`cvm --list-remote\` to see available versions" >&2
+    return 1
+  fi
+
   localFilename="cursor-$version.AppImage"
-  url="https://cursor-archive.ivstiv.dev/archive/linux-x64/$remoteFilename"
+  url=$(
+    getVersionHistory | \
+      jq -r --arg v "$version" '.versions[] | select(.version == $v and .platforms["linux-x64"] != null) | .platforms["linux-x64"]'
+  )
   echo "Downloading Cursor $version..."
-  curl -L "$url" -o "$DOWNLOADS_DIR/$localFilename"
+  wget -O "$DOWNLOADS_DIR/$localFilename" "$url"
   chmod +x "$DOWNLOADS_DIR/$localFilename"
   echo "Cursor $version downloaded to $DOWNLOADS_DIR/$localFilename"
 }
@@ -110,18 +132,11 @@ exitIfVersionNotInstalled() {
   fi
 }
 
-getRemoteVersions() {
-  curl -s https://cursor-archive.ivstiv.dev/archive/linux-x64/ | 
-    grep -oP 'cursor-\K[0-9.]+(?=x86_64\.AppImage)' |
-    sort -V |
-    uniq
-}
-
 installCVM() {
   latestRemoteVersion=$(getLatestRemoteVersion)
   latestLocalVersion=$(getLatestLocalVersion)
   if [ "$latestRemoteVersion" != "$latestLocalVersion" ]; then
-    downloadLatest "$latestRemoteVersion"
+    downloadVersion "$latestRemoteVersion"
   fi
   selectVersion "$latestRemoteVersion"
 
@@ -188,7 +203,7 @@ uninstallCVM() {
 
 checkDependencies() {
   mainShellPID="$$"
-  printf "sed\ncurl\ngrep\n" | while IFS= read -r program; do
+  printf "sed\ngrep\njq\nfind\nwget\n" | while IFS= read -r program; do
     if ! [ -x "$(command -v "$program")" ]; then
       echo "Error: $program is not installed." >&2
       kill -9 "$mainShellPID" 
@@ -254,7 +269,7 @@ case "$1" in
     ;;
   --update)
     latestVersion=$(getLatestRemoteVersion)
-    downloadLatest "$latestVersion"
+    downloadVersion "$latestVersion"
     selectVersion "$version"
     ;;
   --list-local)
@@ -300,6 +315,9 @@ case "$1" in
     if [ "$latestRemoteVersion" != "$latestLocalVersion" ]; then
       echo "There is a newer version available for download!"
       echo "You can activate the latest version with \`cvm --update\`"
+    elif [ "$latestRemoteVersion" != "$activeVersion" ]; then
+      echo "There is a newer version already installed!"
+      echo "You can activate the latest version with \`cvm --use $latestRemoteVersion\`"
     else
       echo "Already up to date."
     fi
