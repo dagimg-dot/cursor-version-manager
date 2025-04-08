@@ -25,8 +25,8 @@ chmod +x cvm.sh
 cvm.sh — Cursor version manager
 
 Examples:
+  ./cvm.sh --version
   sh cvm.sh --list-local
-  ./cvm.sh --check
   bash cvm.sh --use 0.40.4
 
 Notice*:

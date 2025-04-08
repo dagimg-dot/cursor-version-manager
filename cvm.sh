@@ -4,8 +4,8 @@
 #H# cvm.sh — Cursor version manager
 #H#
 #H# Examples:
+#H#   ./cvm.sh --version
 #H#   sh cvm.sh --list-local
-#H#   ./cvm.sh --check
 #H#   bash cvm.sh --use 0.40.4
 #H#
 #H# Notice*:
