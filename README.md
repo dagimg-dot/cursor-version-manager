@@ -37,13 +37,13 @@ Options:
   --list-local         Lists locally available versions
   --list-remote        Lists versions available for download
   --download <version> Downloads a version
-  --check              Check latest versions available for download
   --update             Downloads and selects the latest version
   --use <version>      Selects a locally available version
   --active             Shows the currently selected version
   --remove <version>   Removes a locally available version
   --install            Adds an alias `cursor` and downloads the latest version
   --uninstall          Removes the Cursor version manager directory and alias
-  -v --version         Shows the script version
+  --update-script      Updates the (cvm.sh) script to the latest version
+  -v --version         Shows the current and latest versions for cvm.sh and Cursor
   -h --help            Shows this message
 ```
