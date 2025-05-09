@@ -443,7 +443,7 @@ case "$1" in
     selectVersion "$version"
     ;;
   --remove)
-    version=$2c
+    version=$2
     if [ -z "$version" ]; then
       echo "Usage: $0 --remove <version>"
       exit 1
