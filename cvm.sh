@@ -393,9 +393,25 @@ case "$1" in
     fi
     ;;
   --update)
-    latestVersion=$(getLatestRemoteVersion)
-    downloadVersion "$latestVersion"
-    selectVersion "$version"
+    latestRemoteVersion=$(getLatestRemoteVersion)
+    activeVersion=$(getActiveVersion 2>/dev/null || echo "None")
+
+    if [ "$latestRemoteVersion" = "$activeVersion" ]; then
+      print_color "$GREEN" "You are already running the latest version: $activeVersion"
+      exit 0
+    fi
+
+    localFileForLatest="$DOWNLOADS_DIR/cursor-$latestRemoteVersion.AppImage"
+    if [ -f "$localFileForLatest" ]; then
+      echo "Latest version $latestRemoteVersion is already downloaded."
+      selectVersion "$latestRemoteVersion"
+      print_color "$GREEN" "Switched to version $latestRemoteVersion."
+    else
+      echo "Downloading latest version $latestRemoteVersion..."
+      downloadVersion "$latestRemoteVersion"
+      selectVersion "$latestRemoteVersion"
+      print_color "$GREEN" "Downloaded and switched to version $latestRemoteVersion."
+    fi
     ;;
   --list-local)
     echo "Locally available versions:"
