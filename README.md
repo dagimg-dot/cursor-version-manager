@@ -4,19 +4,25 @@ A shell script to manage multiple versions of [Cursor](https://www.cursor.com/) 
 
 ### Installation
 
-1. Download the script
+#### Option 1: Install system-wide
+
 ```bash
-wget -O - https://github.com/ivstiv/cursor-version-manager/archive/main.tar.gz | tar -xz --strip=1 "cursor-version-manager-main/cvm.sh"
+sudo curl -L -o /usr/local/bin/cvm https://github.com/ivstiv/cursor-version-manager/releases/download/1.4.0/cvm.sh
+sudo chmod +x /usr/local/bin/cvm
 ```
 
-2. Make the script executable (optional)
+#### Option 2: Use it as a local script
 
 ```bash
+curl -L -o cvm.sh https://github.com/ivstiv/cursor-version-manager/releases/download/1.4.0/cvm.sh
 chmod +x cvm.sh
 ```
 
-3. Download the latest Cursor AppImage and add an alias to it
+#### Download cursor and add an alias to it
 ```bash
+# system-wide
+cvm --install
+# local script
 ./cvm.sh --install
 ```
 
