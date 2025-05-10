@@ -158,7 +158,9 @@ selectVersion() {
 getActiveVersion() {
   if [ -L "$CURSOR_DIR/active" ]; then
     appimage_path=$(readlink -f "$CURSOR_DIR/active")
-    version=$(basename "$appimage_path" | sed -E 's/cursor-([0-9.]+)\.AppImage/\1/')
+    filename=$(basename "$appimage_path")
+    version=${filename#cursor-}
+    version=${version%.AppImage}
     echo "$version"
   else
     echo "No active version. Use \`cvm --use <version>\` to select one."
