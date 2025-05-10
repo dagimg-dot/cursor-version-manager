@@ -409,6 +409,16 @@ case "$1" in
     ;;
   --update)
     latestRemoteVersion=$(getLatestRemoteVersion)
+    
+    if [ ! -d "$DOWNLOADS_DIR" ] || [ -z "$(ls -A "$DOWNLOADS_DIR" 2>/dev/null)" ]; then
+      echo "No Cursor versions found locally."
+      echo "Downloading latest version $latestRemoteVersion..."
+      downloadVersion "$latestRemoteVersion"
+      selectVersion "$latestRemoteVersion"
+      print_color "$GREEN" "Downloaded and switched to version $latestRemoteVersion."
+      exit 0
+    fi
+
     activeVersion=$(getActiveVersion 2>/dev/null || echo "None")
 
     if [ "$latestRemoteVersion" = "$activeVersion" ]; then
