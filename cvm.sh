@@ -1,4 +1,7 @@
-#!/bin/sh
+#!/bin/bash
+
+set -euo pipefail
+trap 'printf "\nScript interrupted by user.\n"; exit 130' INT TERM
 
 #H#
 #H# cvm.sh — Cursor version manager
