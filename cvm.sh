@@ -420,13 +420,20 @@ case "$1" in
   --list-local)
     echo "Locally available versions:"
     # shellcheck disable=SC2010
-    ls -1 "$DOWNLOADS_DIR" \
-      | grep -oP 'cursor-\K[0-9.]+(?=\.)' \
-      | sed 's/^/  - /'
+    local_versions_list=$(ls -1 "$DOWNLOADS_DIR" 2>/dev/null | grep -oP 'cursor-\K[0-9.]+(?=\.)' || true)
+    if [ -n "$local_versions_list" ]; then
+      while IFS= read -r version; do
+        echo "  - $version"
+      done <<< "$local_versions_list"
+    else
+      echo "  No versions installed."
+    fi
     ;;
   --list-remote)
     echo "Remote versions:"
-    getRemoteVersions | sed 's/^/  - /'
+    while IFS= read -r version; do
+      echo "  - $version"
+    done < <(getRemoteVersions)
     ;;
   --download)
     if [ -z "${2:-}" ]; then
