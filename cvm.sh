@@ -429,12 +429,12 @@ case "$1" in
     getRemoteVersions | sed 's/^/  - /'
     ;;
   --download)
-    version=$2
-    if [ -z "$version" ]; then
+    if [ -z "${2:-}" ]; then
       echo "Usage: $0 --download <version>"
       exit 1
     fi
 
+    version=$2
     # check if version is available for download
     if ! getRemoteVersions | grep -q "^$version\$"; then
       echo "Version $version not found for download."
@@ -453,22 +453,22 @@ case "$1" in
     getActiveVersion
     ;;
   --use)
-    version=$2
-    if [ -z "$version" ]; then
+    if [ -z "${2:-}" ]; then
       echo "Usage: $0 --use <version>"
       exit 1
     fi
 
+    version=$2
     exitIfVersionNotInstalled "$version"
     selectVersion "$version"
     ;;
   --remove)
-    version=$2
-    if [ -z "$version" ]; then
+    if [ -z "${2:-}" ]; then
       echo "Usage: $0 --remove <version>"
       exit 1
     fi
 
+    version=$2
     exitIfVersionNotInstalled "$version"
     activeVersion=$(getActiveVersion)
 
