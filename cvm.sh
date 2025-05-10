@@ -206,9 +206,12 @@ installCVM() {
     fish)
       if [ ! -f "$HOME/.config/fish/functions/cursor.fish" ] || ! grep -q "function cursor" "$HOME/.config/fish/functions/cursor.fish"; then
         mkdir -p "$HOME/.config/fish/functions"
-        echo "function cursor" > "$HOME/.config/fish/functions/cursor.fish"
-        echo "    $CURSOR_DIR/active \$argv" >> "$HOME/.config/fish/functions/cursor.fish"
-        echo "end" >> "$HOME/.config/fish/functions/cursor.fish"
+        {
+          echo "function cursor"
+          echo "    $CURSOR_DIR/active \$argv"
+          echo "    disown"
+          echo "end"
+        } > "$HOME/.config/fish/functions/cursor.fish"
       fi
       ;;
   esac
