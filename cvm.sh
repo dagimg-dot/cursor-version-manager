@@ -122,10 +122,11 @@ getLatestRemoteVersion() {
 
 getLatestLocalVersion() {
   # shellcheck disable=SC2010
-  ls -1 "$DOWNLOADS_DIR" \
+  ls -1 "$DOWNLOADS_DIR" 2>/dev/null \
     | grep -oP 'cursor-\K[0-9.]+(?=\.)' \
-    | sort -r \
-    | head -n 1
+    | sort -V -r \
+    | head -n 1 \
+    || true
 }
 
 downloadVersion() {
