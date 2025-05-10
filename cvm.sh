@@ -385,20 +385,26 @@ case "$1" in
     echo ""
     echo "Cursor App Information:"
     latestRemoteVersion=$(getLatestRemoteVersion)
-    latestLocalVersion=$(getLatestLocalVersion)
-    activeVersion=$(getActiveVersion 2>/dev/null || echo "None")
-    echo "  - Latest remote version: $latestRemoteVersion"
-    echo "  - Latest locally available: $latestLocalVersion"
-    echo "  - Currently active: $activeVersion"
+    if [ -d "$DOWNLOADS_DIR" ] && [ -n "$(ls -A "$DOWNLOADS_DIR" 2>/dev/null)" ]; then
+      latestLocalVersion=$(getLatestLocalVersion)
+      activeVersion=$(getActiveVersion 2>/dev/null || echo "None")
+      echo "  - Latest remote version: $latestRemoteVersion"
+      echo "  - Latest locally available: $latestLocalVersion"
+      echo "  - Currently active: $activeVersion"
 
-    if [ "$latestRemoteVersion" != "$latestLocalVersion" ]; then
-      print_color "$ORANGE" "There is a newer Cursor version available for download!"
-      print_color "$ORANGE" "You can download and activate it with \`cvm --update\`"
-    elif [ "$latestRemoteVersion" != "$activeVersion" ]; then
-      print_color "$ORANGE" "There is a newer Cursor version already installed!"
-      print_color "$ORANGE" "You can activate it with \`cvm --use $latestRemoteVersion\`"
+      if [ "$latestRemoteVersion" != "$latestLocalVersion" ]; then
+        print_color "$ORANGE" "There is a newer Cursor version available for download!"
+        print_color "$ORANGE" "You can download and activate it with \`cvm --update\`"
+      elif [ "$latestRemoteVersion" != "$activeVersion" ]; then
+        print_color "$ORANGE" "There is a newer Cursor version already installed!"
+        print_color "$ORANGE" "You can activate it with \`cvm --use $latestRemoteVersion\`"
+      else
+        print_color "$GREEN" "You are running the latest Cursor version!"
+      fi
     else
-      print_color "$GREEN" "You are running the latest Cursor version!"
+      echo "  - Latest remote version: $latestRemoteVersion"
+      echo "  - No local Cursor installation found"
+      print_color "$ORANGE" "To install Cursor, run: $0 --install"
     fi
     ;;
   --update)
