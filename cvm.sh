@@ -423,10 +423,10 @@ case "$1" in
     fi
     ;;
   --list-local)
-    echo "Locally available versions:"
     # shellcheck disable=SC2010
     local_versions_list=$(ls -1 "$DOWNLOADS_DIR" 2>/dev/null | grep -oP 'cursor-\K[0-9.]+(?=\.)' || true)
     if [ -n "$local_versions_list" ]; then
+      echo "Locally available versions:"
       while IFS= read -r version; do
         echo "  - $version"
       done <<< "$local_versions_list"
@@ -482,12 +482,25 @@ case "$1" in
 
     version=$2
     exitIfVersionNotInstalled "$version"
-    activeVersion=$(getActiveVersion)
-
-    if [ "$activeVersion" = "$version" ]; then
-      rm "$CURSOR_DIR/active"
+    
+    # Check if this version is currently active
+    if [ -L "$CURSOR_DIR/active" ]; then
+      activeVersion=$(getActiveVersion)
+      if [ "$activeVersion" = "$version" ]; then
+        echo "Removing active version $version..."
+        rm "$CURSOR_DIR/active"
+        print_color "$GREEN" "✓ Removed active symlink"
+      fi
     fi
-    rm "$DOWNLOADS_DIR/cursor-$version.AppImage"
+
+    # Remove the AppImage file
+    echo "Removing AppImage for version $version..."
+    if rm "$DOWNLOADS_DIR/cursor-$version.AppImage"; then
+      print_color "$GREEN" "✓ Successfully removed version $version"
+    else
+      print_color "$ORANGE" "! Failed to remove version $version"
+      exit 1
+    fi
     ;;
   --install)
     installCVM
