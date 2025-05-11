@@ -364,6 +364,12 @@ checkDependencies
 mkdir -p "$DOWNLOADS_DIR"
 cleanupAppImages
 
+if [ -z "${1:-}" ]; then
+  echo "Usage: $0 <options>"
+  help
+  exit 1
+fi
+
 case "$1" in
   --help|-h)
     help
