@@ -153,6 +153,7 @@ selectVersion() {
   appimage_path="$DOWNLOADS_DIR/$filename"
   ln -sf "$appimage_path" "$CURSOR_DIR/active"
   echo "Symlink created: $CURSOR_DIR/active -> $appimage_path"
+  echo "Close all instances of Cursor and reopen it to use the new version."
 }
 
 getActiveVersion() {
