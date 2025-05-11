@@ -208,7 +208,7 @@ installCVM() {
         mkdir -p "$HOME/.config/fish/functions"
         {
           echo "function cursor"
-          echo "    $CURSOR_DIR/active \$argv"
+          echo "    nohup $CURSOR_DIR/active \$argv --no-sandbox </dev/null >/dev/null 2>&1 &"
           echo "    disown"
           echo "end"
         } > "$HOME/.config/fish/functions/cursor.fish"
